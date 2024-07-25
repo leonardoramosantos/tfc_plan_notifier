@@ -38,8 +38,6 @@ func (x *TFCApi) CallAPIListObjects(endpointPath string, page ...int) []byte {
 		log.Fatalf("Error %v", err)
 	}
 
-	//log.Debugf("Result - Code: %d, JSON: %s", resp.StatusCode(), resp.String())
-
 	return resp.Body()
 }
 

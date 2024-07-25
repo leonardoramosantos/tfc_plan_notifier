@@ -1,23 +1,23 @@
 package config
 
 import (
-	"leonardoramosantos/tfc_plan_notifier/utils"
-	"time"
+	"github.com/creasty/defaults"
 )
 
 type ConfigScan struct {
-	OrganizationMatchExpr string
-	WorkspaceMatchExpr    string
-	TimeInterval          time.Duration
+	OrganizationMatchExpr string        `default:".eao" yaml:"organization"`
+	WorkspaceMatchExpr    string        `default:".*" yaml:"workspace"`
+	TimeInterval          string        `default:"PT12H" yaml:"interval"`
+	SlackNotifications    []ConfigSlack `yaml:"slack-notifications"`
 }
 
-func GetConfigScan() *ConfigScan {
-	var result = ConfigScan{}
+func (s *ConfigScan) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	defaults.Set(s)
 
-	//TODO - set from yaml config
-	result.OrganizationMatchExpr = ".*"
-	result.WorkspaceMatchExpr = ".*"
-	result.TimeInterval, _ = utils.ParseISODuration("PT12H")
+	type plain ConfigScan
+	if err := unmarshal((*plain)(s)); err != nil {
+		return err
+	}
 
-	return &result
+	return nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type StatusTimestamps struct {
-	PlanQueueableAt time.Time `json:"plan-queueable-at"`
+	PlanPlannedAt time.Time `json:"planned-at"`
 }
 
 type RunAttributes struct {
