@@ -6,7 +6,8 @@ import (
 )
 
 type ConfigPlan struct {
-	Plans []ConfigScan `yaml:"config-plan"`
+	TFCToken string       `yaml:"tfc-token"`
+	Plans    []ConfigScan `yaml:"config-plan"`
 }
 
 func (s *ConfigPlan) UnmarshalYAML(unmarshal func(interface{}) error) error {

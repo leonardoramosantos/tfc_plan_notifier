@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "tfc_plan_notifier.fullname" . }}-config
+  labels:
+    {{- include "tfc_plan_notifier.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  config.yaml: |
+    {{- with .Values.nofitierConfig }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}

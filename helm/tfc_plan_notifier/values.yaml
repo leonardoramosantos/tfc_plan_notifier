@@ -1,0 +1,82 @@
+# Default values for tfc_plan_notifier.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Base64 terraform token, if not provided in the config.yaml
+terraformToken: ""
+# -- Cronjob schedule for the application to run
+schedule: "*/10 * * * *"
+
+# -- Settings to run plans
+nofitierConfig:
+  # -- Not required. The plain text token to access Terraform API. If not specified, terraformToken must be set
+  tfc-token: ""
+  # -- Plan to run agains terraform. Multiple plans can be specified
+  config-plan:
+      # -- ISO 8601 Duration string specifying how old a plan should be to warn
+    - interval: "PT5M"
+      # -- RegExp to filter Terraform Organizations
+      organization: ".*"
+      # -- RegExp to filter Terraform Workspaces
+      workspace: ".*"
+      slack-notifications:
+          # -- Slack token
+        - token: ""
+          # -- List of string names of the channels to send warnings
+          channels:
+          - tfcplannotifier_5m
+
+# -- Image configurations to run
+image:
+  # -- Repository of the image
+  repository: "leonardoramosantos/tfc_plan_notifier"
+  # -- Pull Policy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: "v1.0"
+
+# -- Pull secrets to get private images
+imagePullSecrets: []
+# -- Set if changing the release and deploy names are needed
+nameOverride: ""
+# -- Set if changing the release and deploy names are needed
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Automatically mount a ServiceAccount's API credentials?
+  automount: false
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

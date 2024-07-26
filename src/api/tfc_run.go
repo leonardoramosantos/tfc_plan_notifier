@@ -2,8 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"leonardoramosantos/tfc_plan_notifier/config"
-	"log"
 	"time"
 )
 
@@ -26,7 +24,7 @@ type runData struct {
 	Meta Meta  `json:"meta"`
 }
 
-func GetRuns(tfcAPIConfig *config.TFCApi, workspace_id string) []Run {
+func (x *TFCApi) GetRuns(workspace_id string) []Run {
 	var result []Run
 
 	var curr_page = 0
@@ -34,7 +32,7 @@ func GetRuns(tfcAPIConfig *config.TFCApi, workspace_id string) []Run {
 
 	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
 		curr_page += 1
-		var response_body = tfcAPIConfig.CallAPIListObjects("workspaces/"+workspace_id+"/runs", curr_page)
+		var response_body = x.CallAPIListObjects("workspaces/"+workspace_id+"/runs", curr_page)
 		var request_result runData
 		if err := json.Unmarshal(response_body, &request_result); err != nil {
 			log.Fatalf("Error: ", err)

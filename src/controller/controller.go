@@ -4,6 +4,7 @@ import (
 	"leonardoramosantos/tfc_plan_notifier/api"
 	"leonardoramosantos/tfc_plan_notifier/config"
 	"leonardoramosantos/tfc_plan_notifier/utils"
+	"os"
 	"regexp"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type controller struct {
-	config        *config.TFCApi
+	api           *api.TFCApi
 	config_plan   *config.ConfigPlan
 	organizations []api.Organization
 }
@@ -19,7 +20,7 @@ type controller struct {
 var log = logging.MustGetLogger("tfc_plan_notifier")
 
 func (x *controller) planVerifyRuns(plan config.ConfigScan, org api.Organization, wks api.Workspace) {
-	var runs = api.GetRuns(x.config, wks.Id)
+	var runs = x.api.GetRuns(wks.Id)
 
 	for _, run := range runs {
 		log.Debugf("Testing Run: %s Status: %s Time: %s", run.Id, run.RunAttr.Status, run.RunAttr.Timestamps.PlanPlannedAt)
@@ -33,7 +34,7 @@ func (x *controller) planVerifyRuns(plan config.ConfigScan, org api.Organization
 }
 
 func (x *controller) planVerifyWorkspaces(plan config.ConfigScan, org api.Organization) {
-	var workspaces = api.GetWorkspaces(x.config, org.Id)
+	var workspaces = x.api.GetWorkspaces(org.Id)
 
 	for _, wks := range workspaces {
 		var wks_match, _ = regexp.MatchString(plan.WorkspaceMatchExpr, wks.Id)
@@ -61,7 +62,7 @@ func (x *controller) planVerifyOrganizations(plan config.ConfigScan) {
 }
 
 func (x *controller) StartPlans() {
-	x.organizations = api.GetOrganizations(x.config)
+	x.organizations = x.api.GetOrganizations()
 
 	for _, plan := range x.config_plan.Plans {
 		x.planVerifyOrganizations(plan)
@@ -71,8 +72,16 @@ func (x *controller) StartPlans() {
 func GetController() *controller {
 	var contr = controller{}
 
-	contr.config = config.GetConfig()
 	contr.config_plan = config.GetConfigPlan("")
+
+	var token string
+	if contr.config_plan.TFCToken != "" {
+		token = contr.config_plan.TFCToken
+	} else {
+		token = os.Getenv("TERRAFORM_TOKEN")
+	}
+
+	contr.api = api.GetTFCApi(token)
 
 	return &contr
 }

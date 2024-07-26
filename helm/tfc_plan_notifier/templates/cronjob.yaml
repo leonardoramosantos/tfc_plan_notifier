@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "tfc_plan_notifier.fullname" . }}
+  labels:
+    {{- include "tfc_plan_notifier.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.schedule }}"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "tfc_plan_notifier.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          containers:
+          - name: {{ include "tfc_plan_notifier.fullname" . }}
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: IfNotPresent
+            resources:
+            {{- toYaml .Values.resources | nindent 14 }}
+            {{- with .Values.nodeSelector }}
+            nodeSelector:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.affinity }}
+            affinity:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.tolerations }}
+            tolerations:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            env:
+            {{- if .Values.terraformToken }}
+            - name: TERRAFORM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tfc_plan_notifier.fullname" . }}
+                  key: TERRAFORM_TOKEN
+            {{- end }}
+            volumeMounts:
+            - name: config-volume
+              mountPath: /config.yaml
+              subPath: config.yaml
+          volumes:
+          - name: config-volume
+            configMap:
+              name: {{ include "tfc_plan_notifier.fullname" . }}-config
+          restartPolicy: OnFailure

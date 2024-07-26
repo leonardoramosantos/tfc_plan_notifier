@@ -2,8 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"leonardoramosantos/tfc_plan_notifier/config"
-	"log"
 )
 
 type Organization struct {
@@ -16,7 +14,7 @@ type orgData struct {
 	Meta Meta           `json:"meta"`
 }
 
-func GetOrganizations(tfcAPIConfig *config.TFCApi) []Organization {
+func (x *TFCApi) GetOrganizations() []Organization {
 	var result []Organization
 
 	var curr_page = 0
@@ -24,7 +22,7 @@ func GetOrganizations(tfcAPIConfig *config.TFCApi) []Organization {
 
 	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
 		curr_page += 1
-		var response_body = tfcAPIConfig.CallAPIListObjects("organizations", curr_page)
+		var response_body = x.CallAPIListObjects("organizations", curr_page)
 		var request_result orgData
 		if err := json.Unmarshal(response_body, &request_result); err != nil {
 			log.Fatalf("Error: ", err)

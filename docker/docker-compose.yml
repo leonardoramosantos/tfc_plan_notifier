@@ -1,0 +1,7 @@
+services:
+  notifier-dev:
+    build:
+      dockerfile: docker/Dockerfile.dev
+      context: ../
+    volumes:
+      - ${PWD}/docker/config.yaml:/config.yaml

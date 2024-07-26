@@ -2,8 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"leonardoramosantos/tfc_plan_notifier/config"
-	"log"
 )
 
 type Workspace struct {
@@ -16,7 +14,7 @@ type wksData struct {
 	Meta Meta        `json:"meta"`
 }
 
-func GetWorkspaces(tfcAPIConfig *config.TFCApi, organization_name string) []Workspace {
+func (x *TFCApi) GetWorkspaces(organization_name string) []Workspace {
 	var result []Workspace
 
 	var curr_page = 0
@@ -24,7 +22,7 @@ func GetWorkspaces(tfcAPIConfig *config.TFCApi, organization_name string) []Work
 
 	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
 		curr_page += 1
-		var response_body = tfcAPIConfig.CallAPIListObjects("organizations/"+organization_name+"/workspaces", curr_page)
+		var response_body = x.CallAPIListObjects("organizations/"+organization_name+"/workspaces", curr_page)
 		var request_result wksData
 		if err := json.Unmarshal(response_body, &request_result); err != nil {
 			log.Fatalf("Error: ", err)
