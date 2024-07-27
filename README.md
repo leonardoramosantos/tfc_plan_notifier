@@ -1,7 +1,61 @@
 # Terraform Plan Notifier
 
-Project to notify teams about Terraform plans waiting for approval.
+![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
+Project to notify technology teams about [Terraform Cloud](https://www.hashicorp.com/products/terraform) plans waiting for approval.
+Multiple Organizations and Slack channels can be configured on the application.
+The application also makes possible set a minimum waiting time for the plan to be warned.
+
+[Slack](https://slack.com/) notifications are supported at the moment, but Teams and E-mail notifications are in the Roadmap.
+
+# Configuration
+
+## Terraform Token
+
+The terraform Token can be set using the `TERRAFORM_TOKEN` environment variable, or inside the configuration file using the key `tfc-token`.
+
+## Terraform Plan Scans
+
+In order to perform the scans of Terraform Plans and find the ones waiting for approval for a certain amount of time, the application tries to load a file called `config.yaml` either from the same directory of the executable or from `/etc`.
+The structure of the file is described here:
+```yaml
+# -- Settings to run plans
+nofitierConfig:
+  # -- Not required. The plain text token to access Terraform API. If not specified, a environment variable called TERRAFORM_TOKEN must be set
+  tfc-token: ""
+  # -- Plan to run agains terraform. Multiple plans can be specified
+  config-plan:
+      # -- ISO 8601 Duration string specifying how old a plan should be to warn
+    - interval: "PT5M"
+      # -- Not required. RegExp to filter Terraform Organizations
+      organization: ".*"
+      # -- Not required. RegExp to filter Terraform Workspaces
+      workspace: ".*"
+      slack-notifications:
+          # -- Slack token
+        - token: <SLACK_TOKEN>
+          # -- List of string names of the channels to send warnings
+          channels:
+          - <SLACK_CHANNEL_TO_POST>
+          - <SLACK_CHANNEL_TO_POST>
+      # Different plans can be set, as it is a list
+    - ...
+```
+
+# Running the application
+
+By default, the *Terraform Plan Notifier* is serverd as [Docker](https://www.docker.com/) Image, but a Helm Chart makes it easier to configure and run on [kubernetes](https://kubernetes.io/) clusters.
+
+## Locally
+
+Create a configuration file `config.yaml` folowing the structure described above. Run the docker image:
+```
+docker run -v ${PWD}:/config.yaml leonardoramosantos/tfc_plan_notifier:latest
+```
+
+## K8S CronJob
+
+A Helm Chart is provided to simplify the process of deploying it to Kubernetes Clusters.
 
 # Building the image
 
@@ -21,3 +75,7 @@ To build the image for production, just run the Docker build command:
 cd tfc_plan_notifier
 docker build . -f docker/Dockerfile -t tfc_plan_notifier
 ```
+
+# LICENSE
+
+[![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](./LICENSE)
