@@ -55,7 +55,17 @@ docker run -v ${PWD}:/config.yaml leonardoramosantos/tfc_plan_notifier:latest
 
 ## K8S CronJob
 
-A Helm Chart is provided to simplify the process of deploying it to Kubernetes Clusters.
+A Helm Chart is provided to simplify the process of deploying it to Kubernetes Clusters, stored here https://github.com/leonardoramosantos/helm-charts.
+
+To use this Helm Chart:
+
+```
+helm repo add ls-public-helm-charts https://leonardoramosantos.github.io/helm-charts/
+
+helm repo update
+
+helm install tfc-plan-notifier ls-public-helm-charts/tfc-plan-notifier
+```
 
 # Building the image
 
