@@ -62,18 +62,23 @@ func (x *controller) planVerifyOrganizations(plan config.ConfigScan) {
 }
 
 func (x *controller) StartPlans() {
+	// Get organizations to avoid request again between plans
 	x.organizations = x.api.GetOrganizations()
 
-	for _, plan := range x.config_plan.Plans {
+	for _, plan := range x.config_plan.Scans {
 		x.planVerifyOrganizations(plan)
 	}
+
+	log.Infof("All plans successfully executed!")
 }
 
+// Initialization of the controller of scans
 func GetController() *controller {
 	var contr = controller{}
 
 	contr.config_plan = config.GetConfigPlan("")
 
+	// Get Terraform Token from the config file or from ENV
 	var token string
 	if contr.config_plan.TFCToken != "" {
 		token = contr.config_plan.TFCToken
@@ -81,6 +86,12 @@ func GetController() *controller {
 		token = os.Getenv("TERRAFORM_TOKEN")
 	}
 
+	if token == "" {
+		log.Errorf("Terraform token must be set either by env variable TERRAFORM_TOKEN or config key tfc-token")
+		os.Exit(-1)
+	}
+
+	// Initialize the TFC Api structure
 	contr.api = api.GetTFCApi(token)
 
 	return &contr

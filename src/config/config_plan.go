@@ -5,9 +5,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Structure to get configuration from YAML config file
 type ConfigPlan struct {
 	TFCToken string       `yaml:"tfc-token"`
-	Plans    []ConfigScan `yaml:"config-plan"`
+	Scans    []ConfigScan `yaml:"scans"`
 }
 
 func (s *ConfigPlan) UnmarshalYAML(unmarshal func(interface{}) error) error {

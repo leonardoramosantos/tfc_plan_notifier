@@ -1,9 +1,0 @@
-apiVersion: v2
-name: tfc-plan-notifier
-description: A Helm chart for a CronJob of the TerraformCloud Plan Notifier
-
-type: application
-
-version: 0.1.0
-
-appVersion: "1.0.0"

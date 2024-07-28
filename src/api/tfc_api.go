@@ -7,6 +7,7 @@ import (
 	"github.com/op/go-logging"
 )
 
+// Structure to encapsulate all Terraform Cloud API Endpoints
 type TFCApi struct {
 	token               string
 	default_path_prefix string
@@ -14,6 +15,7 @@ type TFCApi struct {
 
 var log = logging.MustGetLogger("tfc_plan_notifier")
 
+// Generalization of all TFC requests
 func (x *TFCApi) CallAPIListObjects(endpointPath string, page ...int) []byte {
 	var full_url = x.default_path_prefix + endpointPath + "?"
 	if len(page) > 0 {
@@ -21,14 +23,12 @@ func (x *TFCApi) CallAPIListObjects(endpointPath string, page ...int) []byte {
 	}
 
 	var client = resty.New()
-
-	log.Debugf("Calling %s", full_url, x.token)
 	var resp, err = client.R().
 		SetHeader("Authorization", "Bearer "+x.token).
 		Get(full_url)
 
 	if err != nil {
-		log.Fatalf("Error %v", err)
+		log.Errorf("TFC API Call Error. Err: %v", err)
 	}
 
 	return resp.Body()

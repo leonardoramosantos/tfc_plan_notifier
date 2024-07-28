@@ -4,8 +4,9 @@ import (
 	"github.com/creasty/defaults"
 )
 
+// Structure to get configuration from YAML config file
 type ConfigScan struct {
-	OrganizationMatchExpr string        `default:".eao" yaml:"organization"`
+	OrganizationMatchExpr string        `default:".*" yaml:"organization"`
 	WorkspaceMatchExpr    string        `default:".*" yaml:"workspace"`
 	TimeInterval          string        `default:"PT12H" yaml:"interval"`
 	SlackNotifications    []ConfigSlack `yaml:"slack-notifications"`

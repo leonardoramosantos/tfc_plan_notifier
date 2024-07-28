@@ -14,12 +14,14 @@ type wksData struct {
 	Meta Meta        `json:"meta"`
 }
 
+// Specialization of TFC api to get Workspaces
 func (x *TFCApi) GetWorkspaces(organization_name string) []Workspace {
 	var result []Workspace
 
 	var curr_page = 0
 	var total_pages = 0
 
+	// Loop to load all pages of data
 	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
 		curr_page += 1
 		var response_body = x.CallAPIListObjects("organizations/"+organization_name+"/workspaces", curr_page)
