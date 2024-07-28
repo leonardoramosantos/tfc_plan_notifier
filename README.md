@@ -19,27 +19,25 @@ The terraform Token can be set using the `TERRAFORM_TOKEN` environment variable,
 In order to perform the scans of Terraform Plans and find the ones waiting for approval for a certain amount of time, the application tries to load a file called `config.yaml` either from the same directory of the executable or from `/etc`.
 The structure of the file is described here:
 ```yaml
-# -- Settings to run plans
-nofitierConfig:
-  # -- Not required. The plain text token to access Terraform API. If not specified, a environment variable called TERRAFORM_TOKEN must be set
-  tfc-token: ""
-  # -- Plan to run agains terraform. Multiple plans can be specified
-  config-plan:
-      # -- ISO 8601 Duration string specifying how old a plan should be to warn
-    - interval: "PT5M"
-      # -- Not required. RegExp to filter Terraform Organizations
-      organization: ".*"
-      # -- Not required. RegExp to filter Terraform Workspaces
-      workspace: ".*"
-      slack-notifications:
-          # -- Slack token
-        - token: <SLACK_TOKEN>
-          # -- List of string names of the channels to send warnings
-          channels:
-          - <SLACK_CHANNEL_TO_POST>
-          - <SLACK_CHANNEL_TO_POST>
-      # Different plans can be set, as it is a list
-    - ...
+# -- Not required. The plain text token to access Terraform API. If not specified, a environment variable called TERRAFORM_TOKEN must be set
+tfc-token: ""
+# -- Plan to run agains terraform. Multiple plans can be specified
+scans:
+    # -- ISO 8601 Duration string specifying how old a plan should be to warn
+  - interval: "PT5M"
+    # -- Not required. RegExp to filter Terraform Organizations
+    organization: ".*"
+    # -- Not required. RegExp to filter Terraform Workspaces
+    workspace: ".*"
+    slack-notifications:
+        # -- Slack token
+      - token: <SLACK_TOKEN>
+        # -- List of string names of the channels to send warnings
+        channels:
+        - <SLACK_CHANNEL_TO_POST>
+        - <SLACK_CHANNEL_TO_POST>
+    # Different plans can be set, as it is a list
+  - ...
 ```
 
 # Running the application
