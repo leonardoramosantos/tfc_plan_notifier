@@ -21,16 +21,31 @@ var log = logging.MustGetLogger("tfc_plan_notifier")
 
 func (x *controller) planVerifyRuns(plan config.ConfigScan, org api.Organization, wks api.Workspace) {
 	var runs = x.api.GetRuns(wks.Id)
+	log.Debugf("Run: %s", runs)
+
+	var waiting_approval_duration time.Duration
+	var should_test_waiting_approval bool = (plan.WaitingApprovalInterval != "")
+	if should_test_waiting_approval {
+		waiting_approval_duration, _ = utils.ParseISODuration(plan.WaitingApprovalInterval)
+	}
+
+	var errored_plan_duration time.Duration
+	var should_test_errored_plan bool = (plan.ErroredPlanInterval != "")
+	if should_test_errored_plan {
+		errored_plan_duration, _ = utils.ParseISODuration(plan.ErroredPlanInterval)
+	}
 
 	for _, run := range runs {
 		log.Debugf("Testing Run: %s Status: %s Time: %s", run.Id, run.RunAttr.Status, run.RunAttr.Timestamps.PlanPlannedAt)
 
-		var waiting_approval_duration, _ = utils.ParseISODuration(plan.WaitingApprovalInterval)
-		var errored_plan_duration, _ = utils.ParseISODuration(plan.ErroredPlanInterval)
-		if (run.RunAttr.Status == "planned") && run.RunAttr.Timestamps.PlanPlannedAt.Before(time.Now().Add(-waiting_approval_duration)) {
+		if should_test_waiting_approval &&
+			(run.RunAttr.Status == "planned") &&
+			run.RunAttr.Timestamps.PlanPlannedAt.Before(time.Now().Add(-waiting_approval_duration)) {
 			log.Debugf("Waiting Plan matches Run: %s", run.Id)
 			x.DispatchSlackWaitingApprovalNotification(plan, org, wks, run)
-		} else if (run.RunAttr.Status == "errored") && run.RunAttr.Timestamps.PlanPlannedAt.Before(time.Now().Add(-errored_plan_duration)) {
+		} else if should_test_errored_plan &&
+			(run.RunAttr.Status == "errored") &&
+			run.RunAttr.Timestamps.PlanErroredAt.Before(time.Now().Add(-errored_plan_duration)) {
 			log.Debugf("Errored Plan matches Run: %s", run.Id)
 			x.DispatchSlackErroredRunNotification(plan, org, wks, run)
 		}

@@ -15,6 +15,22 @@ type TFCApi struct {
 
 var log = logging.MustGetLogger("tfc_plan_notifier")
 
+func (x *TFCApi) CallAPIListObjectsOnlyLastOne(endpointPath string) []byte {
+	var full_url = x.default_path_prefix + endpointPath + "?page[size]=2"
+	log.Debugf("URL: %s", full_url)
+
+	var client = resty.New()
+	var resp, err = client.R().
+		SetHeader("Authorization", "Bearer "+x.token).
+		Get(full_url)
+
+	if err != nil {
+		log.Errorf("TFC API Call Error. Err: %v", err)
+	}
+
+	return resp.Body()
+}
+
 // Generalization of all TFC requests
 func (x *TFCApi) CallAPIListObjects(endpointPath string, page ...int) []byte {
 	var full_url = x.default_path_prefix + endpointPath + "?"

@@ -29,20 +29,12 @@ type runData struct {
 func (x *TFCApi) GetRuns(workspace_id string) []Run {
 	var result []Run
 
-	var curr_page = 0
-	var total_pages = 0
-
-	// Loop to load all pages of data
-	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
-		curr_page += 1
-		var response_body = x.CallAPIListObjects("workspaces/"+workspace_id+"/runs", curr_page)
-		var request_result runData
-		if err := json.Unmarshal(response_body, &request_result); err != nil {
-			log.Fatalf("Error: ", err)
-		}
-		result = append(result, request_result.Data...)
-		total_pages = request_result.Meta.Pagination.TotalPages
+	var response_body = x.CallAPIListObjectsOnlyLastOne("workspaces/" + workspace_id + "/runs")
+	var request_result runData
+	if err := json.Unmarshal(response_body, &request_result); err != nil {
+		log.Fatalf("Error: ", err)
 	}
+	result = append(result, request_result.Data...)
 
 	return result
 }

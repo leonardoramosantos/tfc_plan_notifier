@@ -2,7 +2,7 @@
 
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-Project to notify technology teams about [Terraform Cloud](https://www.hashicorp.com/products/terraform) plans waiting for approval.
+Project to notify technology teams about [Terraform Cloud](https://www.hashicorp.com/products/terraform) plans with errors and waiting for approval.
 Multiple Organizations and Slack channels can be configured on the application.
 The application also makes possible set a minimum waiting time for the plan to be warned.
 
@@ -16,15 +16,17 @@ The terraform Token can be set using the `TERRAFORM_TOKEN` environment variable,
 
 ## Terraform Plan Scans
 
-In order to perform the scans of Terraform Plans and find the ones waiting for approval for a certain amount of time, the application tries to load a file called `config.yaml` either from the same directory of the executable or from `/etc`.
+In order to perform the scans of Terraform Plans and find the ones with status `waiting for approval` and `errored` for a certain amount of time, the application tries to load a file called `config.yaml` either from the same directory of the executable or from `/etc`.
 The structure of the file is described here:
 ```yaml
 # -- Not required. The plain text token to access Terraform API. If not specified, a environment variable called TERRAFORM_TOKEN must be set
 tfc-token: ""
 # -- Plan to run agains terraform. Multiple plans can be specified
 scans:
-    # -- ISO 8601 Duration string specifying how old a plan should be to warn
-  - interval: "PT5M"
+    # -- ISO 8601 Duration string specifying how old a waiting plan should be to warn. If Empty, waiting plans will not be warned
+  - waiting-approval-interval: ""
+    # -- ISO 8601 Duration string specifying how old a errored plan should be to warn. If Empty, errored plans will not be warned
+    errored-plan-interval: ""
     # -- Not required. RegExp to filter Terraform Organizations
     organization: ".*"
     # -- Not required. RegExp to filter Terraform Workspaces
