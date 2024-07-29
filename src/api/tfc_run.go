@@ -7,6 +7,7 @@ import (
 
 type StatusTimestamps struct {
 	PlanPlannedAt time.Time `json:"planned-at"`
+	PlanErroredAt time.Time `json:"errored-at"`
 }
 
 type RunAttributes struct {
