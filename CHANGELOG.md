@@ -18,10 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Switched Location of Helm chart to helm-charts
 
-## [1.2] - 2024-07-2
+## [1.2] - 2024-07-29
 ### Added
 - Notifications of plans errored
 - Time Duration for plans errored `errored-plan-interval`
 
 ### Changed
 - Setting key `interval` now is called `waiting-approval-interval`
+
+## [1.3] - 2024-08-2
+### Changed
+- Small code corrections
