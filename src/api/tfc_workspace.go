@@ -22,7 +22,7 @@ func (x *TFCApi) GetWorkspaces(organization_name string) []Workspace {
 	var total_pages = 0
 
 	// Loop to load all pages of data
-	for should_continue := true; should_continue; should_continue = (curr_page > total_pages) {
+	for should_continue := true; should_continue; should_continue = (curr_page <= total_pages) {
 		curr_page += 1
 		var response_body = x.CallAPIListObjects("organizations/"+organization_name+"/workspaces", curr_page)
 		var request_result wksData

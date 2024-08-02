@@ -16,7 +16,7 @@ type TFCApi struct {
 var log = logging.MustGetLogger("tfc_plan_notifier")
 
 func (x *TFCApi) CallAPIListObjectsOnlyLastOne(endpointPath string) []byte {
-	var full_url = x.default_path_prefix + endpointPath + "?page[size]=2"
+	var full_url = x.default_path_prefix + endpointPath + "?page[size]=1"
 	log.Debugf("URL: %s", full_url)
 
 	var client = resty.New()
