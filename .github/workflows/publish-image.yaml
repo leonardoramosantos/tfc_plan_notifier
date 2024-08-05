@@ -8,22 +8,65 @@ on:
         required: true
         type: string
 
+env:
+  APPLICATION_NAME: tfc-plan-notifier
+  ACR_SERVER: midocker.azurecr.io
+  ACR_USERNAME: midocker
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup image tag
+        run: |
+          echo "IMAGE=${{ env.ACR_SERVER }}/${{ env.APPLICATION_NAME }}:${{ inputs.image_tag }}" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+
+      - uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.ACR_SERVER }}
+          username: ${{ env.ACR_USERNAME }}
+          password: ${{ env.ACR_PASSWORD }}
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           file: "docker/Dockerfile"
           push: true
-          tags: "leonardoramosantos/tfc_plan_notifier:${{ inputs.image_tag }}"
+          tags: "${{ env.IMAGE }}"
+
+      - name: Check Image Vulnerabilities
+        uses: movingimage-evp/github-actions/docker/check-vulnerabilities@main
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_API_KEY }}
+        with:
+          image: ${{ env.IMAGE }}
+          registry: ${{ env.ACR_SERVER }}
+          username: ${{ env.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+          max-vuln-level: ${{ vars.SNYK_MAX_VULN_LEVEL }}
+
+      - name: Sign Docker Image 🐳
+        uses: movingimage-evp/github-actions/docker/sign-image@v0.0.9
+        env:
+          NOTATION_USERNAME: ${{ secrets.NOTATION_USERNAME }}
+          NOTATION_PASSWORD: ${{ secrets.NOTATION_PASSWORD }}
+          NOTATION_EXPERIMENTAL: "1"
+          # We always use infra prod AKV to sign the images, so we can use always this secret
+          CLIENT_ID: ${{ secrets.INFRA_SP_PROD_ID }}
+          CLIENT_SECRET: ${{ secrets.INFRA_SP_PROD_SECRET }}
+          CERTIFICATE_KEYVAULT_NAME: "mi-infra-prod"
+          SUBSCRIPTION_ID: "cf817e59-98d1-4ef5-88ff-c8fadf252893"
+        with:
+          application-name: ${{ env.APPLICATION_NAME }}
+          version: ${{ env.VERSION}}
+          client-id: ${{ env.CLIENT_ID }}
+          client-secret: ${{ env.CLIENT_SECRET }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
