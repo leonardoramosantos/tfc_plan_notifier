@@ -18,6 +18,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Configurations for PROD
+        run: |
+          echo "AZURE_SERVICE_PRINCIPAL_CLIENT_ID=${{ secrets.INFRA_PROD_GHA_ID }}" >> $GITHUB_ENV
+          echo "AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET=${{ secrets.INFRA_PROD_GHA_SECRET }}" >> $GITHUB_ENV
+      
       - name: Setup image tag
         run: |
           echo "IMAGE=${{ env.ACR_SERVER }}/${{ env.APPLICATION_NAME }}:${{ inputs.image_tag }}" >> $GITHUB_ENV
